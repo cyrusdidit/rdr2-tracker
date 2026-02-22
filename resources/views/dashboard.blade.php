@@ -4,14 +4,22 @@
     <title>RDR2 Tracker</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
-        body { font-family: sans-serif; background: #1a1c2c; color: #eee; padding: 40px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-        .header h1 { color: #f0a500; margin: 0; flex: 1; text-align: center; }
-        .user-info { text-align: right; display: flex; align-items: center; gap: 15px; }
-        .user-info span { color: #d4af37; font-weight: bold; }
-        .logout-btn { background: #4e1a1a; color: white; border: 1px solid #900; padding: 8px 16px; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 0.9em; transition: background 0.3s; }
-        .logout-btn:hover { background: #6b2424; }
+        body { font-family: sans-serif; background: #1a1c2c; color: #eee; margin: 0; padding: 0; }
+        .header { background: #1a1c2c; border-bottom: 1px solid #444; padding: 20px 40px; position: relative; }
+        .header h1 { color: #f0a500; margin: 0; text-align: center; }
+        .user-menu { position: absolute; top: 20px; right: 40px; }
+        .user-menu-trigger { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; }
+        .user-menu-trigger:hover { transform: scale(1.05); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; }
+        .avatar-arrow { color: #d4af37; font-size: 1.2em; transition: transform 0.3s; }
+        .user-menu-trigger:hover .avatar-arrow { transform: rotate(90deg); }
+        .user-dropdown { display: none; position: absolute; top: 40px; right: 0; background: #222; border: 1px solid #d4af37; border-radius: 4px; min-width: 150px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); z-index: 1000; overflow: hidden; }
+        .user-dropdown.open { display: block; }
+        .user-dropdown a, .user-dropdown button { display: block; padding: 10px 15px; color: #d4af37; text-decoration: none; border: none; background: none; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; font-family: inherit; }
+        .user-dropdown a:hover, .user-dropdown button:hover { background: #2d2d2d; }
+        .user-dropdown a.logout, .user-dropdown button.logout { color: #ff6b6b; }
+        .user-dropdown a.logout:hover, .user-dropdown button.logout:hover { background: #3a1a1a; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px; }
         .card { background: #25283d; border: 1px solid #444; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
         .progress-bar { background: #444; height: 10px; border-radius: 5px; margin: 15px 0; }
         .progress-fill { background: #f0a500; height: 100%; border-radius: 5px; transition: 0.3s; }
@@ -32,17 +40,24 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🤠 RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
-            <div class="user-info">
-                <span>{{ Auth::user()->name }}</span>
-                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+    <div class="header">
+        <h1>🤠 RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
+        <div class="user-menu">
+            <button class="user-menu-trigger" onclick="toggleUserMenu()" title="{{ Auth::user()->name }}">
+                <img src="{{ Auth::user()->profile_picture }}" alt="Avatar" class="user-avatar">
+                <span class="avatar-arrow">▶</span>
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#settings">⚙️ Settings</a>
+                <form method="POST" action="{{ route('logout') }}" class="logout">
                     @csrf
-                    <button type="submit" class="logout-btn">Logout</button>
+                    <button type="submit">🚪 Logout</button>
                 </form>
             </div>
         </div>
+    </div>
+
+    <div class="container">
 
         <div class="nav">
             <a href="/?chapter=all" class="{{ ($chapter ?? 'all') == 'all' ? 'active' : '' }}">All</a>
@@ -61,8 +76,7 @@
 
 
         <!-- DEBUG INFO -->
-        <!-- x -->
-        <div class="card" style="background: #3a2a2a; border-color: #660;">
+        <!-- <div class="card" style="background: #3a2a2a; border-color: #660;">
             <strong style="color: #f0a500;">DEBUG:</strong> 
             Categories count: {{ count($categories) }} | 
             Total tasks: {{ $totalCount }} | 
@@ -70,7 +84,8 @@
             @if(empty($categories))
                 <p style="color: #ff6b6b;"><strong>⚠️ No categories found!</strong></p>
             @endif
-        </div>
+        </div> -->
+        
             
 
         @if($chapter == '1')
@@ -124,6 +139,19 @@
     </div>
 
     <script>
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            if (!userMenu.contains(event.target)) {
+                document.getElementById('userDropdown').classList.remove('open');
+            }
+        });
+
         function toggleTask(checkbox) {
             const taskId = checkbox.getAttribute('data-task-id');
             fetch(`/toggle/${taskId}`, {

@@ -48,12 +48,36 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
+            'profile_picture' => 'nullable|in:avatar1.png,avatar2.png,avatar3.png,avatar4.png,avatar5.png',
+            'custom_avatar' => 'nullable|string',
         ]);
+
+        // Handle custom avatar upload
+        if (!empty($validated['custom_avatar'])) {
+            // Save custom avatar image
+            $base64String = $validated['custom_avatar'];
+            $base64String = str_replace('data:image/png;base64,', '', $base64String);
+            
+            $imageName = 'avatar_' . time() . '_' . uniqid() . '.png';
+            $imagePath = public_path('images/avatars/' . $imageName);
+            
+            file_put_contents($imagePath, base64_decode($base64String));
+            $profilePicture = '/images/avatars/' . $imageName;
+        } else {
+            // If no avatar selected, randomly pick one from defaults
+            $profilePicture = $validated['profile_picture'] ?? null;
+            if (!$profilePicture) {
+                $defaultAvatars = ['avatar1.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'avatar5.png'];
+                $profilePicture = $defaultAvatars[array_rand($defaultAvatars)];
+            }
+            $profilePicture = '/images/avatars/' . $profilePicture;
+        }
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'profile_picture' => $profilePicture,
         ]);
 
         Auth::login($user);
