@@ -38,7 +38,9 @@
             <p>Completed: {{ $completedCount }} / {{ $totalCount }} tasks</p>
         </div>
 
+
         <!-- DEBUG INFO -->
+        <!-- x -->
         <div class="card" style="background: #3a2a2a; border-color: #660;">
             <strong style="color: #f0a500;">DEBUG:</strong> 
             Categories count: {{ count($categories) }} | 
@@ -48,24 +50,36 @@
                 <p style="color: #ff6b6b;"><strong>⚠️ No categories found!</strong></p>
             @endif
         </div>
+            
 
+        @if($chapter == '1')
+            <div class="card" style="background: #2d3d5c; border-color: #6699dd; text-align: center; padding: 40px;">
+                <h2 style="color: #f0a500; margin-bottom: 20px;">Nothing is available until the start of Chapter 2</h2>
+                <p style="font-size: 1.1em; color: #bbb;">Chapter 1 is just the tutorial chapter :D</p>
+            </div>
+        @else
 
 
         @foreach($categories as $catName => $catTasks)
             <div class="card">
                 <h3 class="category-title">{{ $catName }}</h3>
-                @foreach($catTasks as $task)
-                    <div class="task-item">
-                        <form action="/toggle/{{ $task['id'] }}" method="POST">
-                            @csrf
-                            <input type="checkbox" onchange="this.form.submit()" {{ in_array($task['id'], $progress) ? 'checked' : '' }}>
-                        </form>
-                        <span>{{ $task['name'] }}</span>
-                        <span class="chapter-badge">Ch. {{ $task['chapter'] }}</span>
-                    </div>
-                @endforeach
+                @if(count($catTasks) === 0)
+                    <p style="color: #999; font-style: italic;">No tasks in this chapter</p>
+                @else
+                    @foreach($catTasks as $task)
+                        <div class="task-item">
+                            <form action="/toggle/{{ $task['id'] }}" method="POST">
+                                @csrf
+                                <input type="checkbox" onchange="this.form.submit()" {{ in_array($task['id'], $progress) ? 'checked' : '' }}>
+                            </form>
+                            <span>{{ $task['name'] }}</span>
+                            <span class="chapter-badge">Ch. {{ $task['chapter'] }}</span>
+                        </div>
+                    @endforeach
+                @endif
             </div>
         @endforeach
+        @endif
 
         <form action="/reset" method="POST">
             @csrf

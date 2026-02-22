@@ -20,8 +20,22 @@ class DashboardController extends Controller
 
         $chapter = $request->query('chapter', 'all');
 
-        // 2) Group tasks by category FIRST (so we see the sections)
+        // 2) Get all unique categories first
+        $allCategories = [];
+        foreach ($tasks as $task) {
+            $cat = $task['category'] ?? 'Other';
+            if (!in_array($cat, $allCategories)) {
+                $allCategories[] = $cat;
+            }
+        }
+
+        // Initialize categories with empty arrays
         $categories = [];
+        foreach ($allCategories as $cat) {
+            $categories[$cat] = [];
+        }
+
+        // Filter and group tasks by category
         $filteredTasks = $tasks;
 
         if ($chapter !== 'all') {
@@ -50,6 +64,15 @@ class DashboardController extends Controller
         $completedCount = count($progress); // Total IDs in progress JSON
         $percentage = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
 
+        // Check if there are any tasks in the filtered results
+        $hasAnyTasks = false;
+        foreach ($categories as $catTasks) {
+            if (!empty($catTasks)) {
+                $hasAnyTasks = true;
+                break;
+            }
+        }
+
         return view('dashboard', [
             'categories'     => $categories,
             'progress'       => $progress,
@@ -57,6 +80,7 @@ class DashboardController extends Controller
             'completedCount' => $completedCount,
             'totalCount'     => $totalCount,
             'chapter'        => $chapter,
+            'hasAnyTasks'    => $hasAnyTasks,
         ]);
     }
 
