@@ -2,88 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-        public function index($chapter = null)
-        {
-            $tasksJson = Storage::get('tasks.json');
-            $tasks = json_decode($tasksJson, true) ?? [];
+    public function index(Request $request)
+    {
+        // 1) Use direct file paths instead of Storage facade
+        $tasksPath = storage_path('app/tasks.json');
+        $progressPath = storage_path('app/progress.json');
 
-            // Filter by chapter if specified
-            if ($chapter !== null) {
-                $tasks = array_filter($tasks, function($task) use ($chapter) {
-                    return $task['chapter'] == $chapter;
-                });
-            }
+        $tasks = file_exists($tasksPath) ? json_decode(file_get_contents($tasksPath), true) : [];
+        $progress = file_exists($progressPath) ? json_decode(file_get_contents($progressPath), true) : [];
+        
+        if (!is_array($tasks)) { $tasks = []; }
+        if (!is_array($progress)) { $progress = []; }
 
-            $progress = [];
-            if (Storage::exists('progress.json')) {
-                $progressJson = Storage::get('progress.json');
-                $progress = json_decode($progressJson, true);
-                if (!is_array($progress)) {
-                    $progress = [];
-                }
-            }
+        $chapter = $request->query('chapter', 'all');
 
-            // Group tasks by category
-            $groupedTasks = [];
-            foreach ($tasks as $task) {
-                $category = $task['category'];
-                if (!isset($groupedTasks[$category])) {
-                    $groupedTasks[$category] = [];
-                }
-                $groupedTasks[$category][] = $task;
-            }
+        // 2) Group tasks by category FIRST (so we see the sections)
+        $categories = [];
+        $filteredTasks = $tasks;
 
-            // Calculate category progress
-            $categoryProgress = [];
-            foreach ($groupedTasks as $category => $categoryTasks) {
-                $completedInCategory = 0;
-                foreach ($categoryTasks as $task) {
-                    if (in_array($task['id'], $progress)) {
-                        $completedInCategory++;
-                    }
-                }
-                $categoryProgress[$category] = [
-                    'completed' => $completedInCategory,
-                    'total' => count($categoryTasks),
-                    'percentage' => count($categoryTasks) > 0 ? round(($completedInCategory / count($categoryTasks)) * 100) : 0
-                ];
-            }
-
-            $completedCount = count($progress);
-            $totalCount = count($tasks);
-            $percentage = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
-
-            return view('dashboard', compact('groupedTasks', 'progress', 'percentage', 'categoryProgress', 'completedCount', 'totalCount', 'chapter'));
+        if ($chapter !== 'all') {
+            $filteredTasks = array_filter($tasks, function ($t) use ($chapter) {
+                return (string) $t['chapter'] === (string) $chapter;
+            });
         }
 
-        public function toggle($id)
-        {
-            // Read current progress
-            $progress = [];
-            if (Storage::exists('progress.json')) {
-                $progressJson = Storage::get('progress.json');
-                $progress = json_decode($progressJson, true);
-            }
-
-            // Ensure it's an array
-            if (!is_array($progress)) {
-                $progress = [];
-            }
-
-            // Toggle the task
-            if (in_array($id, $progress)) {
-                $progress = array_diff($progress, [$id]);
-            } else {
-                $progress[] = $id;
-            }
-
-            // Save back to JSON
-            Storage::put('progress.json', json_encode(array_values($progress)));
-
-            return redirect('/');
+        foreach ($filteredTasks as $task) {
+            $cat = $task['category'] ?? 'Other';
+            $categories[$cat][] = $task;
         }
+
+        // 3) Overall progress stats
+        $totalCount = count($tasks); // Total tasks in the whole JSON
+        $completedCount = count($progress); // Total IDs in progress JSON
+        $percentage = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
+
+        return view('dashboard', [
+            'categories'     => $categories,
+            'progress'       => $progress,
+            'percentage'     => $percentage,
+            'completedCount' => $completedCount,
+            'totalCount'     => $totalCount,
+            'chapter'        => $chapter,
+        ]);
+    }
+
+    public function toggle($id)
+    {
+        $path = storage_path('app/progress.json');
+        $progress = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
+        if (!is_array($progress)) { $progress = []; }
+
+        if (in_array($id, $progress)) {
+            $progress = array_values(array_diff($progress, [$id]));
+        } else {
+            $progress[] = (int)$id;
+        }
+
+        file_put_contents($path, json_encode($progress));
+        return redirect()->back();
+    }
+
+    public function reset()
+    {
+        file_put_contents(storage_path('app/progress.json'), json_encode([]));
+        return redirect()->back();
+    }
 }
