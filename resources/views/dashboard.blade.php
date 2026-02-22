@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>RDR2 Tracker</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body { font-family: sans-serif; background: #1a1c2c; color: #eee; padding: 40px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -17,6 +18,11 @@
         .nav a { color: #ccc; text-decoration: none; margin: 0 10px; padding: 5px 15px; border: 1px solid #444; border-radius: 20px; }
         .nav a.active { background: #f0a500; color: #000; border-color: #f0a500; }
         button.reset { background: #4e1a1a; color: white; border: 1px solid #900; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: block; margin: 20px auto; }
+        .quest-name { cursor: pointer; }
+        .quest-details { display: none; margin-top: 12px; padding: 10px; background: #1f2937; border-left: 3px solid #f0a500; border-radius: 4px; }
+        .quest-details.open { display: block; }
+        .quest-Discription { color: #bbb; margin-bottom: 8px; font-size: 0.9em; }
+        .quest-what { color: #9ca3af; font-size: 0.9em; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -67,13 +73,22 @@
                     <p style="color: #999; font-style: italic;">No tasks in this chapter</p>
                 @else
                     @foreach($catTasks as $task)
-                        <div class="task-item">
-                            <form action="/toggle/{{ $task['id'] }}" method="POST">
-                                @csrf
-                                <input type="checkbox" onchange="this.form.submit()" {{ in_array($task['id'], $progress) ? 'checked' : '' }}>
-                            </form>
-                            <span>{{ $task['name'] }}</span>
-                            <span class="chapter-badge">Ch. {{ $task['chapter'] }}</span>
+                        <div class="task-item" style="flex-direction: column; align-items: flex-start;">
+                            <div style="display: flex; align-items: center; width: 100%; margin-bottom: {{ $catName === 'Side Quests' && isset($task['Discription']) ? '0px' : '10px' }};">
+                                <input type="checkbox" data-task-id="{{ $task['id'] }}" onchange="toggleTask(this)" {{ in_array($task['id'], $progress) ? 'checked' : '' }}>
+                                @if($catName === 'Side Quests' && isset($task['Discription']))
+                                    <span class="quest-name" onclick="toggleDetails(this)">{{ $task['name'] }}</span>
+                                @else
+                                    <span>{{ $task['name'] }}</span>
+                                @endif
+                                <span class="chapter-badge">Ch. {{ $task['chapter'] }}</span>
+                            </div>
+                            @if($catName === 'Side Quests' && isset($task['Discription']))
+                                <div class="quest-details" style="margin-left: 40px; width: calc(100% - 40px);">
+                                    <div class="quest-Discription"><strong>Discription:</strong> {{ $task['Discription'] }}</div>
+                                    <div class="quest-what"><strong>What you do:</strong> {{ $task['what_you_do'] }}</div>
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 @endif
@@ -86,5 +101,26 @@
             <button type="submit" class="reset">Reset All Progress</button>
         </form>
     </div>
+
+    <script>
+        function toggleTask(checkbox) {
+            const taskId = checkbox.getAttribute('data-task-id');
+            fetch(`/toggle/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function toggleDetails(element) {
+            const detailsDiv = element.closest('.task-item').querySelector('.quest-details');
+            if (detailsDiv) {
+                detailsDiv.classList.toggle('open');
+            }
+        }
+    </script>
 </body>
 </html>
