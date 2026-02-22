@@ -7,11 +7,6 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -118,7 +113,20 @@ class DashboardController extends Controller
         }
 
         file_put_contents($path, json_encode($progress));
-        return response()->json(['success' => true]);
+        
+        // Get total count
+        $tasksPath = storage_path('app/tasks.json');
+        $tasks = file_exists($tasksPath) ? json_decode(file_get_contents($tasksPath), true) : [];
+        $totalCount = count($tasks);
+        $completedCount = count($progress);
+        $percentage = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
+        
+        return response()->json([
+            'success' => true,
+            'completedCount' => $completedCount,
+            'totalCount' => $totalCount,
+            'percentage' => $percentage
+        ]);
     }
 
     public function reset()

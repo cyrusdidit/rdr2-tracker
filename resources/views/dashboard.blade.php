@@ -133,6 +133,15 @@
                     'Content-Type': 'application/json'
                 }
             })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update progress stats
+                    document.querySelector('.card h2').textContent = `Overall Progress: ${data.percentage}%`;
+                    document.querySelector('.progress-fill').style.width = `${data.percentage}%`;
+                    document.querySelector('.card p').textContent = `Completed: ${data.completedCount} / ${data.totalCount} tasks`;
+                }
+            })
             .catch(error => console.error('Error:', error));
         }
 

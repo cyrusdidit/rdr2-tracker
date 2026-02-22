@@ -11,11 +11,17 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        if (Auth::check()) {
+            return redirect('/');
+        }
         return view('auth.login');
     }
 
     public function showRegister()
     {
+        if (Auth::check()) {
+            return redirect('/');
+        }
         return view('auth.register');
     }
 
@@ -28,7 +34,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($validated)) {
             $request->session()->regenerate();
-            return redirect('/dashboard');
+            return redirect('/');
         }
 
         return back()->withErrors([
@@ -51,7 +57,7 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
-        return redirect('/dashboard');
+        return redirect('/');
     }
 
     public function logout(Request $request)
