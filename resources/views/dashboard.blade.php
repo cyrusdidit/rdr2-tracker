@@ -38,6 +38,17 @@
             <p>Completed: {{ $completedCount }} / {{ $totalCount }} tasks</p>
         </div>
 
+        <!-- DEBUG INFO -->
+        <div class="card" style="background: #3a2a2a; border-color: #660;">
+            <strong style="color: #f0a500;">DEBUG:</strong> 
+            Categories count: {{ count($categories) }} | 
+            Total tasks: {{ $totalCount }} | 
+            Chapter: {{ $chapter }}
+            @if(empty($categories))
+                <p style="color: #ff6b6b;"><strong>⚠️ No categories found!</strong></p>
+            @endif
+        </div>
+
 
 
         @foreach($categories as $catName => $catTasks)

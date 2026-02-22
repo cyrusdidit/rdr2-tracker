@@ -26,13 +26,23 @@ class DashboardController extends Controller
 
         if ($chapter !== 'all') {
             $filteredTasks = array_filter($tasks, function ($t) use ($chapter) {
-                return (string) $t['chapter'] === (string) $chapter;
+                return (string) $t['chapter'] === (string) $chapter || (string) $t['chapter'] === 'all';
             });
         }
 
         foreach ($filteredTasks as $task) {
             $cat = $task['category'] ?? 'Other';
             $categories[$cat][] = $task;
+        }
+
+        // DEBUG: Check if categories are being populated
+        if (empty($categories)) {
+            \Log::warning('Categories empty!', [
+                'tasksPath' => $tasksPath,
+                'tasksCount' => count($tasks),
+                'filteredCount' => count($filteredTasks),
+                'chapter' => $chapter
+            ]);
         }
 
         // 3) Overall progress stats
