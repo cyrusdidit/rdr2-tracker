@@ -3,14 +3,23 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index(Request $request)
     {
-        // 1) Use direct file paths instead of Storage facade
+        $user = Auth::user();
+        
+        // 1) Use direct file paths
         $tasksPath = storage_path('app/tasks.json');
-        $progressPath = storage_path('app/progress.json');
+        // Use user-specific progress file
+        $progressPath = storage_path('app/user-progress/' . $user->id . '.json');
 
         $tasks = file_exists($tasksPath) ? json_decode(file_get_contents($tasksPath), true) : [];
         $progress = file_exists($progressPath) ? json_decode(file_get_contents($progressPath), true) : [];
@@ -86,7 +95,19 @@ class DashboardController extends Controller
 
     public function toggle($id)
     {
-        $path = storage_path('app/progress.json');
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $user = Auth::user();
+        $progressDir = storage_path('app/user-progress');
+        
+        // Create user-progress directory if it doesn't exist
+        if (!is_dir($progressDir)) {
+            mkdir($progressDir, 0755, true);
+        }
+
+        $path = $progressDir . '/' . $user->id . '.json';
         $progress = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
         if (!is_array($progress)) { $progress = []; }
 
@@ -97,12 +118,19 @@ class DashboardController extends Controller
         }
 
         file_put_contents($path, json_encode($progress));
-        return redirect()->back();
+        return response()->json(['success' => true]);
     }
 
     public function reset()
     {
-        file_put_contents(storage_path('app/progress.json'), json_encode([]));
-        return redirect()->back();
+        if (!Auth::check()) {
+            return redirect('/login')->with('error', 'You must be logged in.');
+        }
+
+        $user = Auth::user();
+        $path = storage_path('app/user-progress/' . $user->id . '.json');
+        
+        file_put_contents($path, json_encode([]));
+        return redirect()->back()->with('success', 'Progress reset successfully!');
     }
 }

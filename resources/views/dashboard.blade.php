@@ -6,6 +6,12 @@
     <style>
         body { font-family: sans-serif; background: #1a1c2c; color: #eee; padding: 40px; }
         .container { max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .header h1 { color: #f0a500; margin: 0; flex: 1; text-align: center; }
+        .user-info { text-align: right; display: flex; align-items: center; gap: 15px; }
+        .user-info span { color: #d4af37; font-weight: bold; }
+        .logout-btn { background: #4e1a1a; color: white; border: 1px solid #900; padding: 8px 16px; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 0.9em; transition: background 0.3s; }
+        .logout-btn:hover { background: #6b2424; }
         .card { background: #25283d; border: 1px solid #444; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
         .progress-bar { background: #444; height: 10px; border-radius: 5px; margin: 15px 0; }
         .progress-fill { background: #f0a500; height: 100%; border-radius: 5px; transition: 0.3s; }
@@ -27,7 +33,16 @@
 </head>
 <body>
     <div class="container">
-        <h1 style="text-align: center; color: #f0a500; margin-bottom: 20px;">🤠 RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
+        <div class="header">
+            <h1>🤠 RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
+            <div class="user-info">
+                <span>{{ Auth::user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </div>
+        </div>
 
         <div class="nav">
             <a href="/?chapter=all" class="{{ ($chapter ?? 'all') == 'all' ? 'active' : '' }}">All</a>
@@ -74,9 +89,9 @@
                 @else
                     @foreach($catTasks as $task)
                         <div class="task-item" style="flex-direction: column; align-items: flex-start;">
-                            <div style="display: flex; align-items: center; width: 100%; margin-bottom: {{ $catName === 'Side Quests' && isset($task['Discription']) ? '0px' : '10px' }};">
+                            <div style="display: flex; align-items: center; width: 100%; margin-bottom: {{ (($catName === 'Side Quests' || $catName === 'Camp Upgrades') && isset($task['description']) || isset($task['cost'])) ? '0px' : '10px' }};">
                                 <input type="checkbox" data-task-id="{{ $task['id'] }}" onchange="toggleTask(this)" {{ in_array($task['id'], $progress) ? 'checked' : '' }}>
-                                @if($catName === 'Side Quests' && isset($task['Discription']))
+                                @if(($catName === 'Side Quests' && isset($task['Discription'])) || ($catName === 'Camp Upgrades' && isset($task['cost'])))
                                     <span class="quest-name" onclick="toggleDetails(this)">{{ $task['name'] }}</span>
                                 @else
                                     <span>{{ $task['name'] }}</span>
@@ -87,6 +102,12 @@
                                 <div class="quest-details" style="margin-left: 40px; width: calc(100% - 40px);">
                                     <div class="quest-Discription"><strong>Discription:</strong> {{ $task['Discription'] }}</div>
                                     <div class="quest-what"><strong>What you do:</strong> {{ $task['what_you_do'] }}</div>
+                                </div>
+                            @elseif($catName === 'Camp Upgrades' && isset($task['cost']))
+                                <div class="quest-details" style="margin-left: 40px; width: calc(100% - 40px);">
+                                    <div class="quest-Discription"><strong>Cost:</strong> {{ $task['cost'] }}</div>
+                                    <div class="quest-Discription"><strong>Requirement:</strong> {{ $task['requirement'] }}</div>
+                                    <div class="quest-what"><strong>Effect:</strong> {{ $task['effect'] }}</div>
                                 </div>
                             @endif
                         </div>
