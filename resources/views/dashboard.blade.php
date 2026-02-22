@@ -4,51 +4,141 @@
     <title>RDR2 Tracker</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
-        body { font-family: sans-serif; background: #1a1c2c; color: #eee; margin: 0; padding: 0; }
-        .header { background: #1a1c2c; border-bottom: 1px solid #444; padding: 20px 40px; position: relative; }
-        .header h1 { color: #f0a500; margin: 0; text-align: center; }
+        :root {
+            --bg-primary: #1a1c2c;
+            --bg-secondary: #25283d;
+            --bg-tertiary: #222;
+            --bg-hover: #2d314d;
+            --border-color: #444;
+            --text-primary: #eee;
+            --text-secondary: #ccc;
+            --text-tertiary: #bbb;
+            --text-muted: #9ca3af;
+            --accent-primary: #f0a500;
+            --accent-secondary: #d4af37;
+            --accent-light: #f0c04f;
+            --error-bg: #3a1a1a;
+            --error-border: #900;
+            --error-text: #ff6b6b;
+            --success-bg: #1f2937;
+            --task-hover: #2d314d;
+        }
+
+        html[data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f9f9f9;
+            --bg-hover: #e8e8e8;
+            --border-color: #ddd;
+            --text-primary: #333;
+            --text-secondary: #555;
+            --text-tertiary: #666;
+            --text-muted: #888;
+            --accent-primary: #d9860a;
+            --accent-secondary: #b8860b;
+            --accent-light: #cd9b1d;
+            --error-bg: #ffe6e6;
+            --error-border: #cc0000;
+            --error-text: #cc0000;
+            --success-bg: #e6f7e6;
+            --task-hover: #f0f0f0;
+        }
+
+        * {
+            color: var(--text-primary);
+        }
+
+        body { 
+            font-family: sans-serif; 
+            background: var(--bg-primary); 
+            color: var(--text-primary);
+            margin: 0; 
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .header { 
+            background: var(--bg-primary); 
+            border-bottom: 1px solid var(--border-color); 
+            padding: 20px 40px; 
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .header h1 { 
+            color: var(--accent-primary); 
+            margin: 0; 
+            text-align: center;
+            flex: 1;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: 1px solid var(--accent-secondary);
+            color: var(--accent-secondary);
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--accent-secondary);
+            color: var(--bg-primary);
+            transform: scale(1.05);
+        }
+
         .user-menu { position: absolute; top: 20px; right: 40px; }
         .user-menu-trigger { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; }
         .user-menu-trigger:hover { transform: scale(1.05); }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; }
-        .avatar-arrow { color: #d4af37; font-size: 1.2em; transition: transform 0.3s; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-secondary); object-fit: cover; }
+        .avatar-arrow { color: var(--accent-secondary); font-size: 1.2em; transition: transform 0.3s; }
         .user-menu-trigger:hover .avatar-arrow { transform: rotate(90deg); }
-        .user-dropdown { display: none; position: absolute; top: 40px; right: 0; background: #222; border: 1px solid #d4af37; border-radius: 4px; min-width: 150px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); z-index: 1000; overflow: hidden; }
+        .user-dropdown { display: none; position: absolute; top: 40px; right: 0; background: var(--bg-tertiary); border: 1px solid var(--accent-secondary); border-radius: 4px; min-width: 150px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); z-index: 1000; overflow: hidden; }
         .user-dropdown.open { display: block; }
-        .user-dropdown a, .user-dropdown button { display: block; padding: 10px 15px; color: #d4af37; text-decoration: none; border: none; background: none; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; font-family: inherit; }
-        .user-dropdown a:hover, .user-dropdown button:hover { background: #2d2d2d; }
-        .user-dropdown a.logout, .user-dropdown button.logout { color: #ff6b6b; }
-        .user-dropdown a.logout:hover, .user-dropdown button.logout:hover { background: #3a1a1a; }
+        .user-dropdown a, .user-dropdown button { display: block; padding: 10px 15px; color: var(--accent-secondary); text-decoration: none; border: none; background: none; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; font-family: inherit; }
+        .user-dropdown a:hover, .user-dropdown button:hover { background: var(--bg-hover); }
+        .user-dropdown a.logout, .user-dropdown button.logout { color: var(--error-text); }
+        .user-dropdown a.logout:hover, .user-dropdown button.logout:hover { background: var(--error-bg); }
         .container { max-width: 800px; margin: 0 auto; padding: 40px; }
-        .card { background: #25283d; border: 1px solid #444; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        .progress-bar { background: #444; height: 10px; border-radius: 5px; margin: 15px 0; }
-        .progress-fill { background: #f0a500; height: 100%; border-radius: 5px; transition: 0.3s; }
-        .category-title { color: #f0a500; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        .card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .progress-bar { background: var(--border-color); height: 10px; border-radius: 5px; margin: 15px 0; }
+        .progress-fill { background: var(--accent-primary); height: 100%; border-radius: 5px; transition: 0.3s; }
+        .category-title { color: var(--accent-primary); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         .task-item { display: flex; align-items: center; margin-bottom: 10px; padding: 5px; }
-        .task-item:hover { background: #2d314d; }
+        .task-item:hover { background: var(--task-hover); }
         input[type="checkbox"] { margin-right: 15px; transform: scale(1.5); cursor: pointer; }
-        .chapter-badge { font-size: 0.7em; background: #444; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+        .chapter-badge { font-size: 0.7em; background: var(--border-color); padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
         .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: #ccc; text-decoration: none; margin: 0 10px; padding: 5px 15px; border: 1px solid #444; border-radius: 20px; }
-        .nav a.active { background: #f0a500; color: #000; border-color: #f0a500; }
-        button.reset { background: #4e1a1a; color: white; border: 1px solid #900; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: block; margin: 20px auto; }
+        .nav a { color: var(--text-secondary); text-decoration: none; margin: 0 10px; padding: 5px 15px; border: 1px solid var(--border-color); border-radius: 20px; transition: all 0.3s ease; }
+        .nav a.active { background: var(--accent-primary); color: var(--bg-primary); border-color: var(--accent-primary); }
+        button.reset { background: var(--error-bg); color: white; border: 1px solid var(--error-border); padding: 10px 20px; border-radius: 5px; cursor: pointer; display: block; margin: 20px auto; }
         .quest-name { cursor: pointer; }
-        .quest-details { display: none; margin-top: 12px; padding: 10px; background: #1f2937; border-left: 3px solid #f0a500; border-radius: 4px; }
+        .quest-details { display: none; margin-top: 12px; padding: 10px; background: var(--success-bg); border-left: 3px solid var(--accent-primary); border-radius: 4px; }
         .quest-details.open { display: block; }
-        .quest-Discription { color: #bbb; margin-bottom: 8px; font-size: 0.9em; }
-        .quest-what { color: #9ca3af; font-size: 0.9em; line-height: 1.5; }
+        .quest-Discription { color: var(--text-tertiary); margin-bottom: 8px; font-size: 0.9em; }
+        .quest-what { color: var(--text-muted); font-size: 0.9em; line-height: 1.5; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🤠 RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
+            <span id="themeIcon">🌙</span>
+        </button>
+        <h1>RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
         <div class="user-menu">
             <button class="user-menu-trigger" onclick="toggleUserMenu()" title="{{ Auth::user()->name }}">
                 <img src="{{ Auth::user()->profile_picture }}" alt="Avatar" class="user-avatar">
                 <span class="avatar-arrow">▶</span>
             </button>
             <div class="user-dropdown" id="userDropdown">
-                <a href="#settings">⚙️ Settings</a>
+                <a href="{{ route('settings') }}">⚙️ Settings</a>
                 <form method="POST" action="{{ route('logout') }}" class="logout">
                     @csrf
                     <button type="submit">🚪 Logout</button>
@@ -179,6 +269,35 @@
                 detailsDiv.classList.toggle('open');
             }
         }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update icon
+            const icon = document.getElementById('themeIcon');
+            icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        }
+
+        // Load saved theme on page load
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const html = document.documentElement;
+            html.setAttribute('data-theme', savedTheme);
+            
+            const icon = document.getElementById('themeIcon');
+            icon.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+        }
+
+        // Initialize theme when page loads
+        document.addEventListener('DOMContentLoaded', initTheme);
+        // Also call it immediately in case DOM is already loaded
+        initTheme();
     </script>
 </body>
 </html>
