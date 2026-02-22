@@ -77,7 +77,7 @@
 
         .theme-toggle-btn {
             background: none;
-            border: 1px solid var(--accent-secondary);
+            border: none;
             color: var(--accent-secondary);
             padding: 8px 12px;
             border-radius: 4px;
