@@ -111,6 +111,12 @@
         .progress-bar { background: var(--border-color); height: 10px; border-radius: 5px; margin: 15px 0; }
         .progress-fill { background: var(--accent-primary); height: 100%; border-radius: 5px; transition: 0.3s; }
         .category-title { color: var(--accent-primary); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+        .subcategory-title { color: var(--text-secondary); margin: 10px 0 5px; font-size: 1em; letter-spacing: 0.5px; cursor: pointer; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; font-weight: 700; display: block; text-align: left; width: 100%; padding: 10px 12px; }
+        .subcategory-title:hover { background: var(--bg-hover); }
+        .subcategory-title::before { content: "▾"; margin-right: 8px; display: inline-block; transition: transform 0.2s ease; }
+        .subcategory-title[aria-expanded="false"]::before { content: "▸"; }
+        .subcategory-body { margin-left: 10px; padding-left: 10px; border-left: 2px solid var(--border-color); display: none; }
+        .subcategory-body.expanded { display: block; }
         .task-item { display: flex; align-items: center; margin-bottom: 10px; padding: 5px; }
         .task-item:hover { background: var(--task-hover); }
         input[type="checkbox"] { margin-right: 15px; transform: scale(1.5); cursor: pointer; }
@@ -192,9 +198,29 @@
                 @if(count($catTasks) === 0)
                     <p style="color: #999; font-style: italic;">No tasks in this chapter</p>
                 @else
+                    @php $currentSub = null; @endphp
                     @foreach($catTasks as $task)
+                        @php $subcat = $task['sub_category'] ?? null; @endphp
+
+                        @if($subcat)
+                            @if($subcat !== $currentSub)
+                                @if($currentSub !== null)
+                                    </div>
+                                @endif
+                                @php $subcatId = 'subcat-' . \Illuminate\Support\Str::slug($subcat, '-'); @endphp
+                                <button type="button" class="subcategory-title" data-subcat-id="{{ $subcatId }}" onclick="toggleSubcategory('{{ $subcatId }}')" aria-expanded="false">{{ $subcat }}</button>
+                                <div class="subcategory-body" id="{{ $subcatId }}">
+                                @php $currentSub = $subcat; @endphp
+                            @endif
+                        @else
+                            @if($currentSub !== null)
+                                </div>
+                                @php $currentSub = null; @endphp
+                            @endif
+                        @endif
+
                         <div class="task-item" style="flex-direction: column; align-items: flex-start;">
-                            <div style="display: flex; align-items: center; width: 100%; margin-bottom: {{ (($catName === 'Side Quests' || $catName === 'Camp Upgrades') && isset($task['description']) || isset($task['cost'])) ? '0px' : '10px' }};">
+                            <div style="display: flex; align-items: center; width: 100%; margin-bottom: {{ (($catName === 'Side Quests' || $catName === 'Camp Upgrades') && (isset($task['Discription']) || isset($task['cost']))) ? '0px' : '10px' }};">
                                 <input type="checkbox" data-task-id="{{ $task['id'] }}" onchange="toggleTask(this)" {{ in_array($task['id'], $progress) ? 'checked' : '' }}>
                                 @if(($catName === 'Side Quests' && isset($task['Discription'])) || ($catName === 'Camp Upgrades' && isset($task['cost'])))
                                     <span class="quest-name" onclick="toggleDetails(this)">{{ $task['name'] }}</span>
@@ -203,6 +229,7 @@
                                 @endif
                                 <span class="chapter-badge">Ch. {{ $task['chapter'] }}</span>
                             </div>
+
                             @if($catName === 'Side Quests' && isset($task['Discription']))
                                 <div class="quest-details" style="margin-left: 40px; width: calc(100% - 40px);">
                                     <div class="quest-Discription"><strong>Discription:</strong> {{ $task['Discription'] }}</div>
@@ -216,7 +243,12 @@
                                 </div>
                             @endif
                         </div>
+
+
                     @endforeach
+                    @if($currentSub && !empty($catTasks))
+                        </div>
+                    @endif
                 @endif
             </div>
         @endforeach
@@ -267,6 +299,19 @@
             const detailsDiv = element.closest('.task-item').querySelector('.quest-details');
             if (detailsDiv) {
                 detailsDiv.classList.toggle('open');
+            }
+        }
+
+        function toggleSubcategory(subcatId) {
+            const body = document.getElementById(subcatId);
+            if (!body) return;
+
+            const isOpen = body.classList.toggle('expanded');
+            body.style.display = isOpen ? 'block' : 'none';
+
+            const button = document.querySelector(`button[data-subcat-id="${subcatId}"]`);
+            if (button) {
+                button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             }
         }
 

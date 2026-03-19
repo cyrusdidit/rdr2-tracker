@@ -53,6 +53,20 @@ class DashboardController extends Controller
             $categories[$cat][] = $task;
         }
 
+        // Sort categories and subcategories for consistent order
+        foreach ($categories as $cat => &$catTasks) {
+            usort($catTasks, function ($a, $b) {
+                $subA = $a['sub_category'] ?? '';
+                $subB = $b['sub_category'] ?? '';
+                $cmp = strcmp($subA, $subB);
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+                return strcmp($a['name'] ?? '', $b['name'] ?? '');
+            });
+        }
+        unset($catTasks);
+
         // DEBUG: Check if categories are being populated
         if (empty($categories)) {
             \Log::warning('Categories empty!', [
