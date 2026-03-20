@@ -117,6 +117,11 @@
         .subcategory-title[aria-expanded="false"]::before { content: "▸"; }
         .subcategory-body { margin-left: 10px; padding-left: 10px; border-left: 2px solid var(--border-color); display: none; }
         .subcategory-body.expanded { display: block; }
+        .collapsible-category { color: var(--accent-primary); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; cursor: pointer; background: none; border: none; font-size: 1.2em; font-weight: bold; text-align: left; width: 100%; }
+        .collapsible-category::before { content: "▸"; margin-right: 8px; display: inline-block; transition: transform 0.2s ease; }
+        .collapsible-category[aria-expanded="true"]::before { content: "▾"; }
+        .category-body { display: none; }
+        .category-body.expanded { display: block; }
         .task-item { display: flex; align-items: center; margin-bottom: 10px; padding: 5px; }
         .task-item:hover { background: var(--task-hover); }
         input[type="checkbox"] { margin-right: 15px; transform: scale(1.5); cursor: pointer; }
@@ -194,7 +199,15 @@
 
         @foreach($categories as $catName => $catTasks)
             <div class="card">
-                <h3 class="category-title">{{ $catName }}</h3>
+                @if($catName === 'Dinosaur Bones')
+                    <button type="button" class="collapsible-category" data-cat-id="cat-dinosaur-bones" onclick="toggleCategory('cat-dinosaur-bones')" aria-expanded="false">{{ $catName }}</button>
+                    <div class="category-body" id="cat-dinosaur-bones">
+                @elseif($catName === 'Rock Carvings')
+                    <button type="button" class="collapsible-category" data-cat-id="cat-rock-carvings" onclick="toggleCategory('cat-rock-carvings')" aria-expanded="false">{{ $catName }}</button>
+                    <div class="category-body" id="cat-rock-carvings">
+                @else
+                    <h3 class="category-title">{{ $catName }}</h3>
+                @endif
                 @if(count($catTasks) === 0)
                     <p style="color: #999; font-style: italic;">No tasks in this chapter</p>
                 @else
@@ -222,7 +235,7 @@
                         <div class="task-item" style="flex-direction: column; align-items: flex-start;">
                             <div style="display: flex; align-items: center; width: 100%; margin-bottom: {{ (($catName === 'Side Quests' || $catName === 'Camp Upgrades') && (isset($task['Discription']) || isset($task['cost']))) ? '0px' : '10px' }};">
                                 <input type="checkbox" data-task-id="{{ $task['id'] }}" onchange="toggleTask(this)" {{ in_array($task['id'], $progress) ? 'checked' : '' }}>
-                                @if(($catName === 'Side Quests' && isset($task['Discription'])) || ($catName === 'Camp Upgrades' && isset($task['cost'])))
+                                @if(($catName === 'Side Quests' && isset($task['Discription'])) || ($catName === 'Camp Upgrades' && isset($task['cost'])) || (($catName === 'Rock Carvings' || $catName === 'Dinosaur Bones' || $catName === 'Dream Catchers') && isset($task['location'])))
                                     <span class="quest-name" onclick="toggleDetails(this)">{{ $task['name'] }}</span>
                                 @else
                                     <span>{{ $task['name'] }}</span>
@@ -241,6 +254,10 @@
                                     <div class="quest-Discription"><strong>Requirement:</strong> {{ $task['requirement'] }}</div>
                                     <div class="quest-what"><strong>Effect:</strong> {{ $task['effect'] }}</div>
                                 </div>
+                            @elseif(($catName === 'Rock Carvings' || $catName === 'Dinosaur Bones' || $catName === 'Dream Catchers') && isset($task['location']))
+                                <div class="quest-details" style="margin-left: 40px; width: calc(100% - 40px);">
+                                    <div class="quest-Discription"><strong>Location:</strong> {{ $task['location'] }}</div>
+                                </div>
                             @endif
                         </div>
 
@@ -249,6 +266,9 @@
                     @if($currentSub && !empty($catTasks))
                         </div>
                     @endif
+                @endif
+                @if($catName === 'Dinosaur Bones' || $catName === 'Rock Carvings')
+                    </div>
                 @endif
             </div>
         @endforeach
@@ -310,6 +330,19 @@
             body.style.display = isOpen ? 'block' : 'none';
 
             const button = document.querySelector(`button[data-subcat-id="${subcatId}"]`);
+            if (button) {
+                button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
+        }
+
+        function toggleCategory(catId) {
+            const body = document.getElementById(catId);
+            if (!body) return;
+
+            const isOpen = body.classList.toggle('expanded');
+            body.style.display = isOpen ? 'block' : 'none';
+
+            const button = document.querySelector(`button[data-cat-id="${catId}"]`);
             if (button) {
                 button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             }

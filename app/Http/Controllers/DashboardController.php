@@ -44,6 +44,10 @@ class DashboardController extends Controller
 
         if ($chapter !== 'all') {
             $filteredTasks = array_filter($tasks, function ($t) use ($chapter) {
+                // Always include Side Quests and Camp Upgrades regardless of chapter
+                if (in_array($t['category'] ?? '', ['Side Quests', 'Camp Upgrades'])) {
+                    return true;
+                }
                 return (string) $t['chapter'] === (string) $chapter || (string) $t['chapter'] === 'all';
             });
         }
@@ -53,7 +57,7 @@ class DashboardController extends Controller
             $categories[$cat][] = $task;
         }
 
-        // Sort categories and subcategories for consistent order
+        // Sort categories and subcategories for consistent order (numeric by id within group)
         foreach ($categories as $cat => &$catTasks) {
             usort($catTasks, function ($a, $b) {
                 $subA = $a['sub_category'] ?? '';
@@ -62,6 +66,14 @@ class DashboardController extends Controller
                 if ($cmp !== 0) {
                     return $cmp;
                 }
+
+                $aId = isset($a['id']) ? intval($a['id']) : null;
+                $bId = isset($b['id']) ? intval($b['id']) : null;
+
+                if ($aId !== null && $bId !== null) {
+                    return $aId <=> $bId;
+                }
+
                 return strcmp($a['name'] ?? '', $b['name'] ?? '');
             });
         }
