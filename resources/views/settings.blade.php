@@ -432,6 +432,11 @@
         </div>
     </div>
 
+    <!-- Reset Progress Button at the very bottom -->
+
+</body>
+
+
     <div class="container">
         @if (session('success'))
             <div class="success-message">{{ session('success') }}</div>
@@ -538,6 +543,43 @@
                 <button type="submit" class="submit-btn">Update Password</button>
             </form>
         </div>
+
+        <!-- Reset Progress Button at the very bottom of the container -->
+        <form id="resetProgressForm" action="/reset" method="POST" style="margin-top: 40px; text-align: center;">
+            @csrf
+            <button type="button" id="resetProgressBtn" class="reset" style="background: #c0392b; color: white; border: 1px solid #a93226; padding: 12px 28px; border-radius: 5px; cursor: pointer; display: inline-block; margin: 0 auto; font-size: 1.1em; font-weight: bold;">Reset All Progress</button>
+        </form>
+
+        <!-- Confirmation Modal -->
+        <div id="resetConfirmModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:#222; border:2px solid #c0392b; border-radius:10px; padding:40px 30px; max-width:350px; margin:auto; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.7);">
+                <h2 style="color:#c0392b; margin-bottom:18px;">Are you sure?</h2>
+                <p style="color:#eee; margin-bottom:30px;">This will permanently delete all your progress. This cannot be undone.</p>
+                <button id="confirmResetYes" style="background:#c0392b; color:white; border:none; padding:10px 28px; border-radius:5px; font-weight:bold; margin-right:18px; cursor:pointer;">Yes</button>
+                <button id="confirmResetNo" style="background:#444; color:white; border:none; padding:10px 28px; border-radius:5px; font-weight:bold; cursor:pointer;">No</button>
+            </div>
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var resetBtn = document.getElementById('resetProgressBtn');
+            var modal = document.getElementById('resetConfirmModal');
+            var yesBtn = document.getElementById('confirmResetYes');
+            var noBtn = document.getElementById('confirmResetNo');
+            var form = document.getElementById('resetProgressForm');
+            if (resetBtn && modal && yesBtn && noBtn && form) {
+                resetBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    modal.style.display = 'flex';
+                });
+                yesBtn.addEventListener('click', function() {
+                    form.submit();
+                });
+                noBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+            }
+        });
+        </script>
     </div>
 
     <!-- Crop Modal -->

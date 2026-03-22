@@ -138,6 +138,18 @@
     </style>
 </head>
 <body>
+    @if(session('progress_reset'))
+        <div id="progressResetModal" style="position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center;">
+            <div style="background:#222; border:2px solid #c0392b; border-radius:10px; padding:40px 30px; max-width:350px; margin:auto; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.7);">
+                <h2 style="color:#c0392b; margin-bottom:18px;">Progress reset</h2>
+            </div>
+        </div>
+        <script>
+            setTimeout(function() {
+                window.location.href = '{{ route('dashboard') }}';
+            }, 1500);
+        </script>
+    @endif
     <div class="header">
         <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
             <span id="themeIcon">🌙</span>
@@ -165,6 +177,7 @@
             <a href="/?chapter=1" class="{{ ($chapter ?? '') == '1' ? 'active' : '' }}">Chapter 1</a>
             <a href="/?chapter=2" class="{{ ($chapter ?? '') == '2' ? 'active' : '' }}">Chapter 2</a>
             <a href="/?chapter=3" class="{{ ($chapter ?? '') == '3' ? 'active' : '' }}">Chapter 3</a>
+            <a href="/?chapter=4" class="{{ ($chapter ?? '') == '4' ? 'active' : '' }}">Chapter 4</a>
             <a href="/?chapter=collectables" class="{{ ($chapter ?? '') == 'collectables' ? 'active' : '' }}">Collectables</a>
         </div>
 
@@ -221,6 +234,9 @@
                 @elseif($catName === 'Camp Upgrades')
                     <button type="button" class="collapsible-category" data-cat-id="cat-camp-upgrades" onclick="toggleCategory('cat-camp-upgrades')" aria-expanded="false">{{ $catName }}</button>
                     <div class="category-body" id="cat-camp-upgrades">
+                @elseif($catName === 'Steam Achievements')
+                    <button type="button" class="collapsible-category" data-cat-id="cat-steam-achievements" onclick="toggleCategory('cat-steam-achievements')" aria-expanded="false">{{ $catName }}</button>
+                    <div class="category-body" id="cat-steam-achievements">
                 @else
                     <h3 class="category-title">{{ $catName }}</h3>
                 @endif
@@ -318,10 +334,6 @@
         @endforeach
         @endif
 
-        <form action="/reset" method="POST">
-            @csrf
-            <button type="submit" class="reset">Reset All Progress</button>
-        </form>
     </div>
 
     <script>
@@ -423,7 +435,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const chapter = '{{ $chapter ?? 'all' }}';
-            if (chapter === '2' || chapter === '3') {
+            if (chapter === '2' || chapter === '3' || chapter === '4') {
                 document.querySelectorAll('.collapsible-category').forEach(btn => {
                     const catId = btn.getAttribute('data-cat-id');
                     const body = document.getElementById(catId);

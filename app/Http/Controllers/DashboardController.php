@@ -33,10 +33,18 @@ class DashboardController extends Controller
             }
         }
 
-        // Initialize categories with empty arrays
+        // Initialize categories with empty arrays, but move Steam Achievements to the end
         $categories = [];
+        $steamAchievements = null;
         foreach ($allCategories as $cat) {
+            if ($cat === 'Steam Achievements') {
+                $steamAchievements = $cat;
+                continue;
+            }
             $categories[$cat] = [];
+        }
+        if ($steamAchievements) {
+            $categories[$steamAchievements] = [];
         }
 
         // Filter and group tasks by category
@@ -167,6 +175,6 @@ class DashboardController extends Controller
         $path = storage_path('app/user-progress/' . $user->id . '.json');
         
         file_put_contents($path, json_encode([]));
-        return redirect()->back()->with('success', 'Progress reset successfully!');
+        return redirect()->route('dashboard')->with('progress_reset', true);
     }
 }
