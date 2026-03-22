@@ -211,6 +211,9 @@
                 @elseif($catName === 'Side Quests')
                     <button type="button" class="collapsible-category" data-cat-id="cat-side-quests" onclick="toggleCategory('cat-side-quests')" aria-expanded="false">{{ $catName }}</button>
                     <div class="category-body" id="cat-side-quests">
+                @elseif($catName === 'Cigarette Cards')
+                    <button type="button" class="collapsible-category" data-cat-id="cat-cigarette-cards" onclick="toggleCategory('cat-cigarette-cards')" aria-expanded="false">{{ $catName }}</button>
+                    <div class="category-body" id="cat-cigarette-cards">
                 @else
                     <h3 class="category-title">{{ $catName }}</h3>
                 @endif
@@ -273,7 +276,7 @@
                         </div>
                     @endif
                 @endif
-                @if($catName === 'Dinosaur Bones' || $catName === 'Rock Carvings' || $catName === 'Dream Catchers' || $catName === 'Side Quests')
+                @if($catName === 'Dinosaur Bones' || $catName === 'Rock Carvings' || $catName === 'Dream Catchers' || $catName === 'Side Quests' || $catName === 'Cigarette Cards')
                     </div>
                 @endif
             </div>
