@@ -44,11 +44,8 @@ class DashboardController extends Controller
 
         if ($chapter !== 'all') {
             $filteredTasks = array_filter($tasks, function ($t) use ($chapter) {
-                // Always include Side Quests and Camp Upgrades regardless of chapter
-                if (in_array($t['category'] ?? '', ['Side Quests', 'Camp Upgrades'])) {
-                    return true;
-                }
-                return (string) $t['chapter'] === (string) $chapter || (string) $t['chapter'] === 'all';
+                // Only include tasks for the selected chapter (exclude 'all')
+                return (string) $t['chapter'] === (string) $chapter;
             });
         }
 

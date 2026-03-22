@@ -198,6 +198,9 @@
 
 
         @foreach($categories as $catName => $catTasks)
+            @if(count($catTasks) === 0)
+                @continue
+            @endif
             <div class="card">
                 @if($catName === 'Dinosaur Bones')
                     <button type="button" class="collapsible-category" data-cat-id="cat-dinosaur-bones" onclick="toggleCategory('cat-dinosaur-bones')" aria-expanded="false">{{ $catName }}</button>
@@ -398,6 +401,21 @@
         document.addEventListener('DOMContentLoaded', initTheme);
         // Also call it immediately in case DOM is already loaded
         initTheme();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const chapter = '{{ $chapter ?? 'all' }}';
+            if (chapter === '2' || chapter === '3') {
+                document.querySelectorAll('.collapsible-category').forEach(btn => {
+                    const catId = btn.getAttribute('data-cat-id');
+                    const body = document.getElementById(catId);
+                    if (body) {
+                        btn.setAttribute('aria-expanded', 'true');
+                        body.classList.add('expanded');
+                        body.style.display = 'block';
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
