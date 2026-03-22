@@ -224,6 +224,20 @@
                 @else
                     <h3 class="category-title">{{ $catName }}</h3>
                 @endif
+                @php
+                    $sectionTotal = is_array($catTasks) ? count($catTasks) : 0;
+                    $sectionCompleted = 0;
+                    if (is_array($catTasks)) {
+                        foreach ($catTasks as $task) {
+                            if (in_array($task['id'], $progress)) $sectionCompleted++;
+                        }
+                    }
+                    $sectionPercent = $sectionTotal > 0 ? round(($sectionCompleted / $sectionTotal) * 100) : 0;
+                @endphp
+                <div class="progress-bar" style="margin-top: 18px; margin-bottom: 10px;">
+                    <div class="progress-fill" style="width: {{ $sectionPercent }}%; background: var(--accent-primary); height: 12px; border-radius: 6px;"></div>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.95em; color: var(--text-secondary);">Section Progress: {{ $sectionCompleted }} / {{ $sectionTotal }} ({{ $sectionPercent }}%)</p>
                 @if(count($catTasks) === 0)
                     <p style="color: #999; font-style: italic;">No tasks in this chapter</p>
                 @else
@@ -270,7 +284,9 @@
                                 <div class="quest-details" style="margin-left: 40px; width: calc(100% - 40px);">
                                     <div class="quest-Discription"><strong>Cost:</strong> {{ $task['cost'] }}</div>
                                     <div class="quest-Discription"><strong>Requirement:</strong> {{ $task['requirement'] }}</div>
-                                    <div class="quest-what"><strong>Effect:</strong> {{ $task['effect'] }}</div>
+                                    @if(isset($task['effect']))
+                                        <div class="quest-what"><strong>Effect:</strong> {{ $task['effect'] }}</div>
+                                    @endif
                                 </div>
                             @elseif(($catName === 'Rock Carvings' || $catName === 'Dinosaur Bones' || $catName === 'Dream Catchers') && isset($task['location']))
                                 <div class="quest-details" style="margin-left: 40px; width: calc(100% - 40px);">
@@ -412,24 +428,6 @@
                     const catId = btn.getAttribute('data-cat-id');
                     const body = document.getElementById(catId);
                     if (body) {
-                        btn.setAttribute('aria-expanded', 'true');
-                        body.classList.add('expanded');
-                        body.style.display = 'block';
-                    }
-                });
-            }
-            if (chapter === 'collectables') {
-                // Only expand collectable categories
-                const collectableIds = [
-                    'cat-dinosaur-bones',
-                    'cat-rock-carvings',
-                    'cat-dream-catchers',
-                    'cat-cigarette-cards'
-                ];
-                collectableIds.forEach(catId => {
-                    const btn = document.querySelector(`.collapsible-category[data-cat-id="${catId}"]`);
-                    const body = document.getElementById(catId);
-                    if (btn && body) {
                         btn.setAttribute('aria-expanded', 'true');
                         body.classList.add('expanded');
                         body.style.display = 'block';
