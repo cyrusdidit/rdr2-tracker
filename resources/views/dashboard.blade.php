@@ -165,6 +165,7 @@
             <a href="/?chapter=1" class="{{ ($chapter ?? '') == '1' ? 'active' : '' }}">Chapter 1</a>
             <a href="/?chapter=2" class="{{ ($chapter ?? '') == '2' ? 'active' : '' }}">Chapter 2</a>
             <a href="/?chapter=3" class="{{ ($chapter ?? '') == '3' ? 'active' : '' }}">Chapter 3</a>
+            <a href="/?chapter=collectables" class="{{ ($chapter ?? '') == 'collectables' ? 'active' : '' }}">Collectables</a>
         </div>
 
         <div class="card">
@@ -255,7 +256,9 @@
                                 @else
                                     <span>{{ $task['name'] }}</span>
                                 @endif
-                                <span class="chapter-badge">Ch. {{ $task['chapter'] }}</span>
+                                @if(isset($task['chapter']))
+                                    <span class="chapter-badge">Ch. {{ $task['chapter'] }}</span>
+                                @endif
                             </div>
 
                             @if($catName === 'Side Quests' && isset($task['Discription']))
@@ -409,6 +412,24 @@
                     const catId = btn.getAttribute('data-cat-id');
                     const body = document.getElementById(catId);
                     if (body) {
+                        btn.setAttribute('aria-expanded', 'true');
+                        body.classList.add('expanded');
+                        body.style.display = 'block';
+                    }
+                });
+            }
+            if (chapter === 'collectables') {
+                // Only expand collectable categories
+                const collectableIds = [
+                    'cat-dinosaur-bones',
+                    'cat-rock-carvings',
+                    'cat-dream-catchers',
+                    'cat-cigarette-cards'
+                ];
+                collectableIds.forEach(catId => {
+                    const btn = document.querySelector(`.collapsible-category[data-cat-id="${catId}"]`);
+                    const body = document.getElementById(catId);
+                    if (btn && body) {
                         btn.setAttribute('aria-expanded', 'true');
                         body.classList.add('expanded');
                         body.style.display = 'block';

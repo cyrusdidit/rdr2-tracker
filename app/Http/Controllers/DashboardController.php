@@ -42,10 +42,15 @@ class DashboardController extends Controller
         // Filter and group tasks by category
         $filteredTasks = $tasks;
 
-        if ($chapter !== 'all') {
+        if ($chapter === 'collectables') {
+            // Only include tasks with tags containing 'Collectables'
+            $filteredTasks = array_filter($tasks, function ($t) {
+                return isset($t['tags']) && is_array($t['tags']) && in_array('Collectables', $t['tags']);
+            });
+        } elseif ($chapter !== 'all') {
             $filteredTasks = array_filter($tasks, function ($t) use ($chapter) {
                 // Only include tasks for the selected chapter (exclude 'all')
-                return (string) $t['chapter'] === (string) $chapter;
+                return (string) ($t['chapter'] ?? '') === (string) $chapter;
             });
         }
 
