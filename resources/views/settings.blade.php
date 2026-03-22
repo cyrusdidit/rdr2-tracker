@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - RDR2 Progress Tracker</title>
     <style>
+
+                @font-face {
+                    font-family: 'Chinese Rocks';
+                    src: url('/fonts/chinese rocks rg.otf') format('opentype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
         :root {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #222;
+            --bg-primary: #000000;
+            --bg-secondary: #120000;
             --bg-gradient-start: #1a1a1a;
             --bg-gradient-end: #2d2d2d;
             --border-color: #d4af37;
@@ -15,12 +22,12 @@
             --text-secondary: #d4af37;
             --text-light: #f0c04f;
             --text-error: #ff6b6b;
-            --bg-error: #3a1a1a;
-            --border-error: #900;
-            --bg-success: #1a3a1a;
-            --border-success: #4a9d4a;
-            --text-success: #6dd46d;
-            --accent-primary: #f0a500;
+              --border-color: #540310;
+              --text-primary: #540310;
+              --text-secondary: #540310;
+              --text-light: #540310;
+              --accent-primary: #540310;
+              --input-focus-border: #540310;
             --input-bg: #1a1a1a;
             --input-border: #444;
             --input-focus-border: #d4af37;
@@ -29,10 +36,10 @@
         html[data-theme="light"] {
             --bg-primary: #f5f5f5;
             --bg-secondary: #ffffff;
-            --bg-gradient-start: #f5f5f5;
-            --bg-gradient-end: #e8e8e8;
-            --border-color: #b8860b;
-            --text-primary: #333;
+              --text-secondary: #540310;
+              --text-light: #540310;
+              --accent-primary: #540310;
+              --input-focus-border: #540310;
             --text-secondary: #b8860b;
             --text-light: #cd9b1d;
             --text-error: #cc0000;
@@ -41,7 +48,7 @@
             --bg-success: #e6f7e6;
             --border-success: #4a9d4a;
             --text-success: #2d7a2d;
-            --accent-primary: #d9860a;
+                --accent-primary: #540310;
             --input-bg: #fafafa;
             --input-border: #ddd;
             --input-focus-border: #b8860b;
@@ -53,17 +60,24 @@
             box-sizing: border-box;
         }
 
+        /* Apply 'Chinese Rocks' font to everything except headers and header-like elements */
+        body *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.header):not(.settings-section h2):not(label) {
+            font-family: 'Chinese Rocks', Impact, sans-serif !important;
+            font-weight: normal !important;
+            font-size: 24px !important;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
             color: var(--text-primary);
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .header {
             background: var(--bg-primary);
-            border-bottom: 1px solid var(--input-border);
+            border-bottom: 1px solid #540310;
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -84,7 +98,7 @@
 
         .theme-toggle-btn {
             background: none;
-            border: 1px solid var(--border-color);
+            border: none;
             color: var(--border-color);
             padding: 8px 12px;
             border-radius: 4px;
@@ -104,7 +118,9 @@
         .back-link {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 8em;
+            line-height: 1;
+            font-weight: bold;
             transition: color 0.3s;
         }
 
@@ -249,8 +265,8 @@
         .upload-btn {
             width: auto;
             padding: 10px 20px;
-            background: var(--input-border);
-            color: var(--border-color);
+            background: #6e0818;
+            color: #000000;
             border: 1px solid var(--border-color);
             margin-top: 0;
             font-size: 14px;
@@ -422,13 +438,15 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>SETTINGS</h1>
-        <div class="header-actions">
-            <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
+    <div class="header" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme" style="margin-right: 0;">
                 <span id="themeIcon">🌙</span>
             </button>
-            <a href="{{ route('dashboard') }}" class="back-link">← Back to Dashboard</a>
+        </div>
+        <h1 style="flex: 2; text-align: center; margin: 0; color: var(--accent-primary);">SETTINGS</h1>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <a href="{{ route('dashboard') }}" class="back-link" title="Back to Dashboard" style="color: red;">⬅️</a>
         </div>
     </div>
 

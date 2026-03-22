@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background: #000000;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -64,7 +64,7 @@
             padding: 12px 15px;
             border: 1px solid #444;
             border-radius: 4px;
-            background: #1a1a1a;
+            background: #120000;
             color: #e0e0e0;
             font-size: 14px;
             transition: border-color 0.3s ease;

@@ -1,22 +1,31 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>RDR2 Tracker</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
+
+        @font-face {
+            font-family: 'Chinese Rocks';
+            src: url('/fonts/chinese rocks rg.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
-            --bg-primary: #1a1c2c;
-            --bg-secondary: #25283d;
+            --bg-primary: #000000;
+            --bg-secondary: #120000;
             --bg-tertiary: #222;
             --bg-hover: #2d314d;
-            --border-color: #444;
-            --text-primary: #eee;
+            --border-color: #360606;
+            --text-primary: #540310;
             --text-secondary: #ccc;
             --text-tertiary: #bbb;
             --text-muted: #9ca3af;
-            --accent-primary: #f0a500;
-            --accent-secondary: #d4af37;
-            --accent-light: #f0c04f;
+            --accent-primary: #540310;
+            --accent-secondary: #540310;
+            --accent-light: #540310;
             --error-bg: #3a1a1a;
             --error-border: #900;
             --error-text: #ff6b6b;
@@ -48,6 +57,12 @@
             color: var(--text-primary);
         }
 
+        .not-header, .not-header * {
+            font-family: 'Chinese Rocks', Impact, sans-serif !important;
+            font-weight: normal !important;
+            font-size: 24px !important;
+        }
+
         body { 
             font-family: sans-serif; 
             background: var(--bg-primary); 
@@ -59,7 +74,7 @@
 
         .header { 
             background: var(--bg-primary); 
-            border-bottom: 1px solid var(--border-color); 
+            border-bottom: 1px solid #540310;
             padding: 20px 40px; 
             position: relative;
             display: flex;
@@ -126,7 +141,23 @@
         .task-item:hover { background: var(--task-hover); }
         input[type="checkbox"] { margin-right: 15px; transform: scale(1.5); cursor: pointer; }
         .chapter-badge { font-size: 0.7em; background: var(--border-color); padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
-        .nav { text-align: center; margin-bottom: 20px; }
+        .nav {
+            text-align: center;
+            margin-bottom: 20px;
+            max-width: 1800px;
+            width: 95vw;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+            padding: 12px 0;
+        }
+        .nav a {
+            flex: 0 1 auto;
+        }
         .nav a { color: var(--text-secondary); text-decoration: none; margin: 0 10px; padding: 5px 15px; border: 1px solid var(--border-color); border-radius: 20px; transition: all 0.3s ease; }
         .nav a.active { background: var(--accent-primary); color: var(--bg-primary); border-color: var(--accent-primary); }
         button.reset { background: var(--error-bg); color: white; border: 1px solid var(--error-border); padding: 10px 20px; border-radius: 5px; cursor: pointer; display: block; margin: 20px auto; }
@@ -138,6 +169,24 @@
     </style>
 </head>
 <body>
+    @if(session('settings_updated'))
+        <div id="settingsUpdatedModal" style="position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); z-index:9999; display:flex; align-items:center; justify-content:center; pointer-events:auto;">
+            <div style="background:#222; border:2px solid #f0a500; border-radius:10px; padding:24px 32px; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.7); min-width:260px; position:relative;">
+                <button id="closeSettingsUpdated" style="position:absolute; top:8px; right:12px; background:none; border:none; color:#f0a500; font-size:1.3em; cursor:pointer;">&times;</button>
+                <h2 style="color:#f0a500; margin-bottom:0;">Settings updated</h2>
+            </div>
+        </div>
+        <script>
+            setTimeout(function() {
+                var modal = document.getElementById('settingsUpdatedModal');
+                if (modal) modal.style.display = 'none';
+            }, 5000);
+            document.getElementById('closeSettingsUpdated').onclick = function() {
+                var modal = document.getElementById('settingsUpdatedModal');
+                if (modal) modal.style.display = 'none';
+            };
+        </script>
+    @endif
     @if(session('progress_reset'))
         <div id="progressResetModal" style="position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center;">
             <div style="background:#222; border:2px solid #c0392b; border-radius:10px; padding:40px 30px; max-width:350px; margin:auto; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.7);">
@@ -150,13 +199,13 @@
             }, 1500);
         </script>
     @endif
-    <div class="header">
+    <div class="header" style="display: flex; align-items: center; justify-content: center; position: relative;">
         <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
             <span id="themeIcon">🌙</span>
         </button>
-        <h1>RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
-        <div class="user-menu">
-            <button class="user-menu-trigger" onclick="toggleUserMenu()" title="{{ Auth::user()->name }}">
+        <h1 style="flex: 1; text-align: center; margin: 0; color: var(--accent-primary);">RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
+        <div class="user-menu" style="position: absolute; top: 20px; right: 40px; z-index: 10;">
+            <button class="user-menu-trigger" id="userMenuTrigger" title="{{ Auth::user()->name }}" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                 <img src="{{ Auth::user()->profile_picture }}" alt="Avatar" class="user-avatar">
                 <span class="avatar-arrow">▶</span>
             </button>
@@ -169,8 +218,24 @@
             </div>
         </div>
     </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var trigger = document.getElementById('userMenuTrigger');
+            var dropdown = document.getElementById('userDropdown');
+            var menu = trigger.parentElement;
+            if (trigger && dropdown && menu) {
+                menu.addEventListener('mouseenter', function() {
+                    dropdown.classList.add('open');
+                });
+                menu.addEventListener('mouseleave', function() {
+                    dropdown.classList.remove('open');
+                });
+            }
+        });
+        </script>
+    </div>
 
-    <div class="container">
+    <div class="container not-header">
 
         <div class="nav">
             <a href="/?chapter=all" class="{{ ($chapter ?? 'all') == 'all' ? 'active' : '' }}">All</a>

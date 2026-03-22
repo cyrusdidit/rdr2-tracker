@@ -38,13 +38,18 @@ class SettingsController extends Controller
             file_put_contents(public_path('images/avatars/' . $imageName), base64_decode($image));
             $user->profile_picture = '/images/avatars/' . $imageName;
         } elseif ($request->has('profile_picture')) {
-            // Use default avatar
-            $user->profile_picture = $request->profile_picture;
+            // Use default avatar, ensure full path is saved
+            $avatar = $request->profile_picture;
+            if (!str_starts_with($avatar, '/images/avatars/')) {
+                $avatar = '/images/avatars/' . ltrim($avatar, '/');
+            }
+            $user->profile_picture = $avatar;
         }
 
         $user->save();
 
-        return redirect()->route('settings')->with('success', 'Profile updated successfully!');
+        // Redirect to dashboard with a session flag for popup
+        return redirect()->route('dashboard')->with('settings_updated', true);
     }
 
     public function updatePassword(Request $request)
