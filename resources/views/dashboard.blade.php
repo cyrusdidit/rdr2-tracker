@@ -34,18 +34,18 @@
         }
 
         html[data-theme="light"] {
-            --bg-primary: #f5f5f5;
-            --bg-secondary: #ffffff;
+            --bg-primary: #eed7b7;
+            --bg-secondary: #f7ebda;
             --bg-tertiary: #f9f9f9;
             --bg-hover: #e8e8e8;
-            --border-color: #ddd;
+            --border-color: #b5915e;
             --text-primary: #333;
             --text-secondary: #555;
             --text-tertiary: #666;
             --text-muted: #888;
-            --accent-primary: #d9860a;
-            --accent-secondary: #b8860b;
-            --accent-light: #cd9b1d;
+            --accent-primary: #630615;
+            --accent-secondary: #630615;
+            --accent-light: #630615;
             --error-bg: #ffe6e6;
             --error-border: #cc0000;
             --error-text: #cc0000;
@@ -115,9 +115,9 @@
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-secondary); object-fit: cover; }
         .avatar-arrow { color: var(--accent-secondary); font-size: 1.2em; transition: transform 0.3s; }
         .user-menu-trigger:hover .avatar-arrow { transform: rotate(90deg); }
-        .user-dropdown { display: none; position: absolute; top: 40px; right: 0; background: var(--bg-tertiary); border: 1px solid var(--accent-secondary); border-radius: 4px; min-width: 150px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); z-index: 1000; overflow: hidden; }
+        .user-dropdown { display: none; position: absolute; top: 40px; right: 0; background: #540310; color: #fff; border: 1px solid var(--accent-secondary); border-radius: 4px; min-width: 150px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); z-index: 1000; overflow: hidden; }
         .user-dropdown.open { display: block; }
-        .user-dropdown a, .user-dropdown button { display: block; padding: 10px 15px; color: var(--accent-secondary); text-decoration: none; border: none; background: none; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; font-family: inherit; }
+        .user-dropdown a, .user-dropdown button { display: block; padding: 10px 15px; color: #fff; text-decoration: none; border: none; background: none; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; font-family: inherit; }
         .user-dropdown a:hover, .user-dropdown button:hover { background: var(--bg-hover); }
         .user-dropdown a.logout, .user-dropdown button.logout { color: var(--error-text); }
         .user-dropdown a.logout:hover, .user-dropdown button.logout:hover { background: var(--error-bg); }

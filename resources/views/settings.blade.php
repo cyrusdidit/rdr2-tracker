@@ -34,24 +34,28 @@
         }
 
         html[data-theme="light"] {
-            --bg-primary: #f5f5f5;
-            --bg-secondary: #ffffff;
-              --text-secondary: #540310;
-              --text-light: #540310;
-              --accent-primary: #540310;
-              --input-focus-border: #540310;
-            --text-secondary: #b8860b;
-            --text-light: #cd9b1d;
-            --text-error: #cc0000;
-            --bg-error: #ffe6e6;
-            --border-error: #cc0000;
-            --bg-success: #e6f7e6;
-            --border-success: #4a9d4a;
-            --text-success: #2d7a2d;
-                --accent-primary: #540310;
-            --input-bg: #fafafa;
-            --input-border: #ddd;
-            --input-focus-border: #b8860b;
+                        --bg-primary: #eed7b7;
+                        --bg-secondary: #f7ebda;
+                        --text-secondary: #540310;
+                        --text-light: #540310;
+                        --accent-primary: #630615;
+                        --input-focus-border: #540310;
+                        --text-secondary: #b8860b;
+                        --text-light: #cd9b1d;
+                        --text-error: #cc0000;
+                        --bg-error: #ffe6e6;
+                        --border-error: #cc0000;
+                        --bg-success: #e6f7e6;
+                        --border-success: #4a9d4a;
+                        --text-success: #2d7a2d;
+                        --accent-primary: #540310;
+                        --input-bg: #fafafa;
+                        --input-border: #ddd;
+                        --input-focus-border: #b8860b;
+                }
+
+                html[data-theme="light"] .settings-section {
+                        box-shadow: none;
         }
 
         * {
