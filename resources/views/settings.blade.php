@@ -454,8 +454,6 @@
         </div>
     </div>
 
-    <!-- Reset Progress Button at the very bottom -->
-
 </body>
 
 
