@@ -59,6 +59,11 @@ class DashboardController extends Controller
 
         if ($chapter === 'collectables') {
             $filteredTasks = array_filter($tasks, $isCollectableTask);
+        } elseif ($chapter === 'complete') {
+            // Show only tasks that are currently completed by the user.
+            $filteredTasks = array_filter($tasks, function ($t) use ($progress) {
+                return in_array($t['id'] ?? null, $progress);
+            });
         } elseif ($chapter !== 'all') {
             $filteredTasks = array_filter($tasks, function ($t) use ($chapter) {
                 // Only include tasks for the selected chapter (exclude 'all').

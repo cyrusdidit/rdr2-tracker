@@ -244,6 +244,7 @@
             <a href="/?chapter=3" class="{{ ($chapter ?? '') == '3' ? 'active' : '' }}">Chapter 3</a>
             <a href="/?chapter=4" class="{{ ($chapter ?? '') == '4' ? 'active' : '' }}">Chapter 4</a>
             <a href="/?chapter=collectables" class="{{ ($chapter ?? '') == 'collectables' ? 'active' : '' }}">Collectables</a>
+            <a href="/?chapter=complete" class="{{ ($chapter ?? '') == 'complete' ? 'active' : '' }}">Complete</a>
         </div>
 
         @if($chapter == '1')
@@ -541,7 +542,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const chapter = '{{ $chapter ?? 'all' }}';
-            if (chapter === '2' || chapter === '3' || chapter === '4') {
+            if (chapter === '2' || chapter === '3' || chapter === '4' || chapter === 'complete') {
                 document.querySelectorAll('.collapsible-category').forEach(btn => {
                     const catId = btn.getAttribute('data-cat-id');
                     const body = document.getElementById(catId);
@@ -551,6 +552,21 @@
                         body.style.display = 'block';
                     }
                 });
+            }
+
+            if (chapter === 'complete') {
+                const cigaretteCardsBody = document.getElementById('cat-cigarette-cards');
+                if (cigaretteCardsBody) {
+                    cigaretteCardsBody.querySelectorAll('.subcategory-title').forEach(btn => {
+                        const subcatId = btn.getAttribute('data-subcat-id');
+                        const subBody = document.getElementById(subcatId);
+                        if (subBody) {
+                            btn.setAttribute('aria-expanded', 'true');
+                            subBody.classList.add('expanded');
+                            subBody.style.display = 'block';
+                        }
+                    });
+                }
             }
 
             // Initial sync in case rendered counts are stale.
