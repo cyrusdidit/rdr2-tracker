@@ -203,7 +203,7 @@
         <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
             <span id="themeIcon">🌙</span>
         </button>
-        <h1 style="flex: 1; text-align: center; margin: 0; color: var(--accent-primary);">RDR2 CHAPTER 1-3 PROGRESS TRACKER</h1>
+        <h1 style="flex: 1; text-align: center; margin: 0; color: var(--accent-primary);">RDR2 CHAPTER 1 - 4 PROGRESS TRACKER</h1>
         <div class="user-menu" style="position: absolute; top: 20px; right: 40px; z-index: 10;">
             <button class="user-menu-trigger" id="userMenuTrigger" title="{{ Auth::user()->name }}" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                 <img src="{{ Auth::user()->profile_picture }}" alt="Avatar" class="user-avatar">
