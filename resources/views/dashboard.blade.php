@@ -246,12 +246,19 @@
             <a href="/?chapter=collectables" class="{{ ($chapter ?? '') == 'collectables' ? 'active' : '' }}">Collectables</a>
         </div>
 
-        <div class="card">
-            <h2>Overall Progress: {{ $percentage }}%</h2>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: {{ $percentage }}%"></div>
+        @if($chapter == '1')
+            <div class="card" style="background: #2d3d5c; border-color: #6699dd; text-align: center; padding: 40px;">
+                <h2 style="color: #f0a500; margin-bottom: 20px;">Nothing is available until the start of Chapter 2</h2>
+                <p style="font-size: 1.1em; color: #bbb;">Chapter 1 is just the tutorial chapter :D</p>
             </div>
-            <p>Completed: {{ $completedCount }} / {{ $totalCount }} tasks</p>
+        @else
+
+        <div class="card overall-progress-card">
+            <h2 class="overall-progress-title">Overall Progress: {{ $percentage }}%</h2>
+            <div class="progress-bar">
+                <div class="progress-fill overall-progress-fill" style="width: {{ $percentage }}%"></div>
+            </div>
+            <p class="overall-progress-text">Completed: {{ $completedCount }} / {{ $totalCount }} tasks</p>
         </div>
 
 
@@ -268,19 +275,11 @@
         
             
 
-        @if($chapter == '1')
-            <div class="card" style="background: #2d3d5c; border-color: #6699dd; text-align: center; padding: 40px;">
-                <h2 style="color: #f0a500; margin-bottom: 20px;">Nothing is available until the start of Chapter 2</h2>
-                <p style="font-size: 1.1em; color: #bbb;">Chapter 1 is just the tutorial chapter :D</p>
-            </div>
-        @else
-
-
         @foreach($categories as $catName => $catTasks)
             @if(count($catTasks) === 0)
                 @continue
             @endif
-            <div class="card">
+            <div class="card task-section-card" data-category="{{ $catName }}">
                 @if($catName === 'Dinosaur Bones')
                     <button type="button" class="collapsible-category" data-cat-id="cat-dinosaur-bones" onclick="toggleCategory('cat-dinosaur-bones')" aria-expanded="false">{{ $catName }}</button>
                     <div class="category-body" id="cat-dinosaur-bones">
@@ -315,10 +314,10 @@
                     }
                     $sectionPercent = $sectionTotal > 0 ? round(($sectionCompleted / $sectionTotal) * 100) : 0;
                 @endphp
-                <div class="progress-bar" style="margin-top: 18px; margin-bottom: 10px;">
-                    <div class="progress-fill" style="width: {{ $sectionPercent }}%; background: var(--accent-primary); height: 12px; border-radius: 6px;"></div>
+                <div class="progress-bar section-progress-bar" style="margin-top: 18px; margin-bottom: 10px;">
+                    <div class="progress-fill section-progress-fill" style="width: {{ $sectionPercent }}%; background: var(--accent-primary); height: 12px; border-radius: 6px;"></div>
                 </div>
-                <p style="margin-bottom: 0; font-size: 0.95em; color: var(--text-secondary);">Section Progress: {{ $sectionCompleted }} / {{ $sectionTotal }} ({{ $sectionPercent }}%)</p>
+                <p class="section-progress-text" style="margin-bottom: 0; font-size: 0.95em; color: var(--text-secondary);">Section Progress: {{ $sectionCompleted }} / {{ $sectionTotal }} ({{ $sectionPercent }}%)</p>
                 @if(count($catTasks) === 0)
                     <p style="color: #999; font-style: italic;">No tasks in this chapter</p>
                 @else
@@ -417,6 +416,10 @@
 
         function toggleTask(checkbox) {
             const taskId = checkbox.getAttribute('data-task-id');
+
+            // Instant UI feedback before the request completes.
+            refreshAllSectionProgresses();
+
             fetch(`/toggle/${taskId}`, {
                 method: 'POST',
                 headers: {
@@ -427,13 +430,51 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update progress stats
-                    document.querySelector('.card h2').textContent = `Overall Progress: ${data.percentage}%`;
-                    document.querySelector('.progress-fill').style.width = `${data.percentage}%`;
-                    document.querySelector('.card p').textContent = `Completed: ${data.completedCount} / ${data.totalCount} tasks`;
+                    // Update overall progress stats.
+                    const overallTitle = document.querySelector('.overall-progress-title');
+                    const overallFill = document.querySelector('.overall-progress-fill');
+                    const overallText = document.querySelector('.overall-progress-text');
+
+                    if (overallTitle) {
+                        overallTitle.textContent = `Overall Progress: ${data.percentage}%`;
+                    }
+                    if (overallFill) {
+                        overallFill.style.width = `${data.percentage}%`;
+                    }
+                    if (overallText) {
+                        overallText.textContent = `Completed: ${data.completedCount} / ${data.totalCount} tasks`;
+                    }
+
+                    // Ensure every section tracker is recalculated live.
+                    refreshAllSectionProgresses();
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                // Keep section trackers in sync with current checkbox states.
+                refreshAllSectionProgresses();
+            });
+        }
+
+        function updateSectionProgress(sectionCard) {
+            const sectionCheckboxes = sectionCard.querySelectorAll('input[type="checkbox"][data-task-id]');
+            const total = sectionCheckboxes.length;
+            const completed = sectionCard.querySelectorAll('input[type="checkbox"][data-task-id]:checked').length;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            const progressFill = sectionCard.querySelector('.section-progress-fill');
+            if (progressFill) {
+                progressFill.style.width = `${percent}%`;
+            }
+
+            const progressText = sectionCard.querySelector('.section-progress-text');
+            if (progressText) {
+                progressText.textContent = `Section Progress: ${completed} / ${total} (${percent}%)`;
+            }
+        }
+
+        function refreshAllSectionProgresses() {
+            document.querySelectorAll('.task-section-card').forEach(updateSectionProgress);
         }
 
         function toggleDetails(element) {
@@ -511,6 +552,9 @@
                     }
                 });
             }
+
+            // Initial sync in case rendered counts are stale.
+            refreshAllSectionProgresses();
         });
     </script>
 </body>
